@@ -2,6 +2,7 @@
 #include "TcpSocket.h"
 #include "Player.h"
 #include "common.h"
+#include "GameBoard.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -11,7 +12,8 @@
 PlayerHandler::PlayerHandler(int port, std::vector<Player*> &players)
     : TcpSocket(port, players)
 {
-
+    this->board.calculateFields();
+    this->board.showBoard();
 }
 
 ssize_t PlayerHandler::recv_message(int event_fd)
@@ -19,9 +21,9 @@ ssize_t PlayerHandler::recv_message(int event_fd)
     basicMsg basicMessage;
     std::memset(&basicMessage, 0, sizeof(basicMsg));
 
-    ssize_t received_bytes = recv(event_fd, &basicMessage, sizeof(basicMsg), 0);
+    ssize_t bytesReceived = recv(event_fd, &basicMessage, sizeof(basicMsg), 0);
 
-    if(received_bytes > 0)
+    if(bytesReceived > 0)
     {
         if (basicMessage.type == MsgType::NEW_PLAYER)
         {
@@ -33,7 +35,7 @@ ssize_t PlayerHandler::recv_message(int event_fd)
             this->players.push_back(new_player);
 
             std::cout << "New player added: " << new_player->getName() << std::endl;
-            this->send_message(event_fd, (void*)"Hello\n\0", 7);
+            this->sendBoard(new_player);
         }
         else
         {
@@ -51,10 +53,23 @@ ssize_t PlayerHandler::recv_message(int event_fd)
         }
     }
 
-    return received_bytes;
+    return bytesReceived;
 }
 
 int PlayerHandler::checkWin(const Player *player)
 {
     return 0;
+}
+
+void PlayerHandler::sendBoard(const Player *player)
+{
+    basicMsg basicMessage;
+    boardMsg boardMessage;
+
+    basicMessage.type = MsgType::BOARD;
+
+    memcpy(boardMessage.board, this->board.getBoardPointer(), sizeof(char) * BOARD_WIDTH * BOARD_HEIGHT);
+    memcpy(basicMessage.payload, &boardMessage, sizeof(boardMessage));
+
+    this->send_message(player->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
 }

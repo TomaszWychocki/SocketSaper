@@ -129,34 +129,25 @@ void TcpSocket::accept_new_connection()
 
 void TcpSocket::read_incoming_data(int event_fd)
 {
-    ssize_t bytes_count = this->recv_message(event_fd);
+    ssize_t bytesReceived = this->recv_message(event_fd);
 
-    std::cout << "Received " << bytes_count << " bytes from " << event_fd << std::endl;
+    std::cout << "Received " << bytesReceived << " bytes from " << event_fd << std::endl;
 
-    if(bytes_count == -1 && errno != EAGAIN)
+    if(bytesReceived == -1 && errno != EAGAIN)
     {
-        perror("ERROR: ");
-        throw std::string("Read fail");
-    }
-    else if(bytes_count == 0)
-    {
-        auto player =
-            std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player* player)
-            {
-                return player->getSocketFd() == event_fd;
-            });
-
-        if (player != this->players.end())
+        if (errno == ECONNRESET)
         {
-            std::cout << "Player disconnected: " << (*player)->getSocketFd() << std::endl;
-            delete *player;
-            this->players.erase(player);
-            close(event_fd);
+            this->closeConnection(event_fd);
         }
         else
         {
-            std::cout << "Unknown player disconnected: " << event_fd << std::endl;
+            perror("ERROR: ");
+            throw std::string("Read fail");
         }
+    }
+    else if(bytesReceived == 0)
+    {
+        this->closeConnection(event_fd);
     }
 }
 
@@ -167,5 +158,26 @@ void TcpSocket::send_message(int socket_fd, void *message, size_t size)
         close(socket_fd);
         perror("ERROR: ");
         throw std::string("sendto fail");
+    }
+}
+
+void TcpSocket::closeConnection(int event_fd)
+{
+    auto player =
+            std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player* player)
+            {
+                return player->getSocketFd() == event_fd;
+            });
+
+    if (player != this->players.end())
+    {
+        std::cout << "Player disconnected: " << (*player)->getName() << std::endl;
+        delete *player;
+        this->players.erase(player);
+        close(event_fd);
+    }
+    else
+    {
+        std::cout << "Unknown player disconnected: " << event_fd << std::endl;
     }
 }

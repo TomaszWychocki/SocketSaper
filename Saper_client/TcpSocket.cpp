@@ -1,4 +1,5 @@
 #include "TcpSocket.h"
+#include "../Saper_server/common.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <cstdio>
@@ -6,6 +7,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <iostream>
+#include <cstring>
 
 
 TcpSocket::TcpSocket(int port)
@@ -69,4 +71,21 @@ void TcpSocket::set_socket_non_blocking()
     int flags = fcntl(this->client_socket_fd, F_GETFL, 0);
     flags = (flags == -1 ? 0 : flags);
     fcntl(this->client_socket_fd, F_SETFL, flags | O_NONBLOCK);
+}
+
+size_t TcpSocket::receive_msg()
+{
+    ssize_t bytesReceived = this->recv_message();
+
+    if (bytesReceived == 0)
+    {
+        std::cout << "Server closed connection" << std::endl;
+        close(this->client_socket_fd);
+        exit(0);
+    }
+}
+
+void TcpSocket::handleConnections()
+{
+    this->receive_msg();
 }

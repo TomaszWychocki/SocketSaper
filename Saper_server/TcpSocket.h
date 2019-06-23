@@ -18,6 +18,7 @@ private:
     void set_socket_non_blocking(int socket_fd);
     void accept_new_connection();
     void read_incoming_data(int event_fd);
+    void closeConnection(int event_fd);
     virtual ssize_t recv_message(int event_fd) = 0;
 
     int port;

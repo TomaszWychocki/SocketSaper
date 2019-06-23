@@ -91,3 +91,8 @@ void GameBoard::setBoardNumbersAroundMine(int i, int j)
         }
     }
 }
+
+char *GameBoard::getBoardPointer()
+{
+    return &this->board[0][0];
+}

@@ -3,6 +3,7 @@
 
 #include "TcpSocket.h"
 #include "Player.h"
+#include "GameBoard.h"
 #include <vector>
 
 
@@ -14,6 +15,9 @@ public:
 private:
     ssize_t recv_message(int event_fd) override;
     int checkWin(const Player *player);
+    void sendBoard(const Player *player);
+
+    GameBoard board;
 };
 
 

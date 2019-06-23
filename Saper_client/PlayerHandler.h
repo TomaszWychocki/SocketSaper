@@ -3,12 +3,17 @@
 
 #include <string>
 #include "TcpSocket.h"
+#include "GameBoard.h"
 
 
 class PlayerHandler : public TcpSocket
 {
 public:
     PlayerHandler(int port, std::string name);
+
+private:
+    ssize_t recv_message() override;
+    GameBoard board;
 };
 
 

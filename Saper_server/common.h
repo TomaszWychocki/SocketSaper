@@ -3,13 +3,14 @@
 
 enum MsgType
 {
-    NEW_PLAYER
+    NEW_PLAYER,
+    BOARD
 };
 
 typedef struct basicMsg
 {
     MsgType type;
-    char payload[1000];
+    char payload[500];
 } basicMsg;
 
 typedef struct newPlayerMsg

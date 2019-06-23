@@ -4,6 +4,8 @@
 #include "PlayerHandler.h"
 #include "Player.h"
 #include <vector>
+#include <thread>
+#include <chrono>
 #include <signal.h>
 #include "GameBoard.h"
 
@@ -19,13 +21,11 @@ int main(int argc, char *argv[])
 
     std::vector<Player*> players;
     PlayerHandler playerHandler(45189, players);
-    GameBoard board;
-
-    board.calculateFields();
 
     while (doLoop)
     {
         playerHandler.handle_connections();
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     return 0;

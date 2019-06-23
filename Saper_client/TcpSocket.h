@@ -8,18 +8,21 @@ class TcpSocket
 {
 public:
     TcpSocket(int port);
-
-    virtual ~TcpSocket();
+    ~TcpSocket();
+    void handleConnections();
+    virtual ssize_t recv_message() = 0;
 
 private:
     void set_socket_non_blocking();
 
-    int client_socket_fd;
     struct sockaddr_in addr;
     int port;
 
 protected:
     void send_message(void *message, size_t size);
+    size_t receive_msg();
+
+    int client_socket_fd;
 };
 
 
