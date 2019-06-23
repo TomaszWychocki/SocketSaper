@@ -32,6 +32,7 @@ private:
 protected:
     std::vector<Player*> &players;
     void send_message(int socket_fd, void *message, size_t size);
+    virtual void onCloseConnection(Player* player);
 };
 
 

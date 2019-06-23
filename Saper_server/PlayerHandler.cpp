@@ -11,9 +11,10 @@
 
 PlayerHandler::PlayerHandler(int port, std::vector<Player*> &players)
     : TcpSocket(port, players)
+    , currentRound(-1)
+    , moveRequestSent(0)
 {
     this->board.calculateFields();
-    this->board.showBoard();
 }
 
 ssize_t PlayerHandler::recv_message(int event_fd)
@@ -36,6 +37,7 @@ ssize_t PlayerHandler::recv_message(int event_fd)
 
             std::cout << "New player added: " << new_player->getName() << std::endl;
             this->sendBoard(new_player);
+            this->sendCurrentRoundInfo(this->players.size() - 1);
         }
         else
         {
@@ -72,4 +74,63 @@ void PlayerHandler::sendBoard(const Player *player)
     memcpy(basicMessage.payload, &boardMessage, sizeof(boardMessage));
 
     this->send_message(player->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
+}
+
+void PlayerHandler::nextRound()
+{
+    if (this->players.empty() || this->moveRequestSent)
+    {
+        return;
+    }
+
+    this->currentRound++;
+
+    for (int i = 0; i < this->players.size(); i++)
+    {
+        this->sendCurrentRoundInfo(i);
+    }
+
+    this->moveRequestSent = 1;
+}
+
+void PlayerHandler::sendCurrentRoundInfo(int playerIndex)
+{
+    int currentPlayerMove = this->currentRound % this->players.size();
+    int isMyMove = currentPlayerMove == playerIndex;
+
+    basicMsg basicMessage;
+    currentRoundInfoMsg currentRoundInfoMessage;
+
+    basicMessage.type = MsgType::CURRENT_ROUND_INFO;
+
+    strcpy(currentRoundInfoMessage.playerName, this->players[currentPlayerMove]->getName().c_str());
+
+    if (isMyMove)
+    {
+        currentRoundInfoMessage.isMyMove = 1;
+    }
+    else
+    {
+        currentRoundInfoMessage.isMyMove = 0;
+    }
+
+    memcpy(basicMessage.payload, &currentRoundInfoMessage, sizeof(currentRoundInfoMessage));
+
+    this->send_message(this->players[playerIndex]->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
+}
+
+void PlayerHandler::onCloseConnection(Player *player)
+{
+    auto itr = std::find(this->players.cbegin(), this->players.cend(), player);
+
+    if (itr != this->players.cend())
+    {
+        int currentPlayerMove = this->currentRound % this->players.size();
+        int playerIndex = std::distance(this->players.cbegin(), itr);
+
+        if (currentPlayerMove == playerIndex)
+        {
+            this->moveRequestSent = 0;
+        }
+    }
 }

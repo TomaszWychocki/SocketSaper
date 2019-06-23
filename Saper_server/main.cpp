@@ -25,6 +25,7 @@ int main(int argc, char *argv[])
     while (doLoop)
     {
         playerHandler.handle_connections();
+        playerHandler.nextRound();
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 

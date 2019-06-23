@@ -7,6 +7,7 @@
 
 PlayerHandler::PlayerHandler(int port, std::string name)
     : TcpSocket(port)
+    , isMyMove(0)
 {
     basicMsg msg;
     newPlayerMsg payload;
@@ -27,18 +28,36 @@ ssize_t PlayerHandler::recv_message()
 
     if (bytesReceived > 0)
     {
-        std::cout << "Received " << bytesReceived << " bytes" << std::endl;
+        //std::cout << "Received " << bytesReceived << " bytes" << std::endl;
 
         if (basicMessage.type == MsgType::BOARD)
         {
+            std::cout << "MsgType::BOARD received" << std::endl;
+
             boardMsg boardMessage;
             memcpy(&boardMessage, basicMessage.payload, sizeof(boardMessage));
             memcpy(this->board.getBoardPointer(), boardMessage.board, sizeof(char) * BOARD_WIDTH * BOARD_HEIGHT);
 
             this->board.showBoard();
         }
+        else if (basicMessage.type == MsgType::CURRENT_ROUND_INFO)
+        {
+            std::cout << "MsgType::CURRENT_ROUND_INFO received" << std::endl;
 
-        std::cout << basicMessage.payload << std::endl;
+            currentRoundInfoMsg currentRoundInfoMessage;
+            memcpy(&currentRoundInfoMessage, basicMessage.payload, sizeof(currentRoundInfoMessage));
+
+            this->isMyMove = currentRoundInfoMessage.isMyMove;
+
+            if (this->isMyMove)
+            {
+                std::cout << "Your move!" << std::endl;
+            }
+            else
+            {
+                std::cout << "Waiting for " << currentRoundInfoMessage.playerName << std::endl;
+            }
+        }
     }
 
     return bytesReceived;

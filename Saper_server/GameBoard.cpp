@@ -35,6 +35,7 @@ void GameBoard::generateBoard()
     this->board[BOARD_HEIGHT - 1][0] = BoardElement::NO_MINE;
     this->board[0][BOARD_WIDTH - 1] = BoardElement::NO_MINE;
     this->board[BOARD_HEIGHT - 1][BOARD_WIDTH - 1] = BoardElement::NO_MINE;
+    this->board[(BOARD_HEIGHT - 1) / 2][(BOARD_WIDTH - 1) / 2] = BoardElement::FINISH;
 }
 
 void GameBoard::showBoard()

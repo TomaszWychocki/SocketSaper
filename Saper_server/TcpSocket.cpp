@@ -171,6 +171,7 @@ void TcpSocket::closeConnection(int event_fd)
 
     if (player != this->players.end())
     {
+        this->onCloseConnection(*player);
         std::cout << "Player disconnected: " << (*player)->getName() << std::endl;
         delete *player;
         this->players.erase(player);
@@ -180,4 +181,9 @@ void TcpSocket::closeConnection(int event_fd)
     {
         std::cout << "Unknown player disconnected: " << event_fd << std::endl;
     }
+}
+
+void TcpSocket::onCloseConnection(Player *player)
+{
+
 }

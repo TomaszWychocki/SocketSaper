@@ -11,11 +11,20 @@ class PlayerHandler : public TcpSocket
 {
 public:
     PlayerHandler(int port, std::vector<Player*> &players);
+    void nextRound();
 
 private:
     ssize_t recv_message(int event_fd) override;
     int checkWin(const Player *player);
+    int moveRequestSent;
+    int currentRound;
     void sendBoard(const Player *player);
+    void sendCurrentRoundInfo(int playerIndex);
+
+protected:
+    void onCloseConnection(Player *player) override;
+
+private:
 
     GameBoard board;
 };

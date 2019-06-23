@@ -10,6 +10,7 @@ class PlayerHandler : public TcpSocket
 {
 public:
     PlayerHandler(int port, std::string name);
+    int isMyMove;
 
 private:
     ssize_t recv_message() override;

@@ -4,7 +4,8 @@
 enum MsgType
 {
     NEW_PLAYER,
-    BOARD
+    BOARD,
+    CURRENT_ROUND_INFO
 };
 
 typedef struct basicMsg
@@ -22,5 +23,11 @@ typedef struct boardMsg
 {
     char board[250];
 } boardMsg;
+
+typedef struct currentRoundInfoMsg
+{
+    char playerName[20];
+    int isMyMove;
+} currentRoundInfoMsg;
 
 #endif //SAPER_SERVER_COMMON_H

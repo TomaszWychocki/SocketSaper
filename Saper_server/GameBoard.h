@@ -6,6 +6,7 @@
 
 enum BoardElement
 {
+    FINISH = -3,
     BLOWN_UP = -2,
     MINE = -1,
     NO_MINE = 0
