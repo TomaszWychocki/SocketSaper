@@ -65,7 +65,7 @@ TcpSocket::~TcpSocket()
 {
     for(auto player : this->players)
     {
-        close(player->get_socket_fd());
+        close(player->getSocketFd());
     }
 
     delete[] this->events;
@@ -131,6 +131,8 @@ void TcpSocket::read_incoming_data(int event_fd)
 {
     ssize_t bytes_count = this->recv_message(event_fd);
 
+    std::cout << "Received " << bytes_count << " bytes from " << event_fd << std::endl;
+
     if(bytes_count == -1 && errno != EAGAIN)
     {
         perror("ERROR: ");
@@ -141,15 +143,19 @@ void TcpSocket::read_incoming_data(int event_fd)
         auto player =
             std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player* player)
             {
-                return player->get_socket_fd() == event_fd;
+                return player->getSocketFd() == event_fd;
             });
 
         if (player != this->players.end())
         {
-            std::cout << "Client disconnected: " << (*player)->get_socket_fd() << std::endl;
+            std::cout << "Player disconnected: " << (*player)->getSocketFd() << std::endl;
             delete *player;
             this->players.erase(player);
             close(event_fd);
+        }
+        else
+        {
+            std::cout << "Unknown player disconnected: " << event_fd << std::endl;
         }
     }
 }

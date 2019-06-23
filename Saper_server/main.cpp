@@ -10,19 +10,18 @@
 
 void sigint_handler(int sig_num);
 
-
 int doLoop = 1;
 
 int main(int argc, char *argv[])
 {
     signal(SIGTERM, sigint_handler);
+    signal(SIGINT, sigint_handler);
 
     std::vector<Player*> players;
     PlayerHandler playerHandler(45189, players);
     GameBoard board;
 
     board.calculateFields();
-    board.showBoard();
 
     while (doLoop)
     {
@@ -34,6 +33,6 @@ int main(int argc, char *argv[])
 
 void sigint_handler(int sig_num)
 {
-    std::cout << "SIGTERM handled\n";
+    std::cout << "Signal received\n";
     doLoop = 0;
 }

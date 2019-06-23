@@ -1,7 +1,7 @@
 #include "PlayerHandler.h"
 #include "TcpSocket.h"
 #include "Player.h"
-#include "messages.h"
+#include "common.h"
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -16,31 +16,38 @@ PlayerHandler::PlayerHandler(int port, std::vector<Player*> &players)
 
 ssize_t PlayerHandler::recv_message(int event_fd)
 {
-    basicMsg message;
-    std::memset(&message, 0, sizeof(basicMsg));
+    basicMsg basicMessage;
+    std::memset(&basicMessage, 0, sizeof(basicMsg));
 
-    ssize_t received_bytes = recv(event_fd, &message, sizeof(basicMsg), 0);
+    ssize_t received_bytes = recv(event_fd, &basicMessage, sizeof(basicMsg), 0);
 
     if(received_bytes > 0)
     {
-        auto player =
-            std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player* player)
-            {
-                return player->get_socket_fd() == event_fd;
-            });
+        if (basicMessage.type == MsgType::NEW_PLAYER)
+        {
+            newPlayerMsg msg;
+            memcpy(&msg, basicMessage.payload, sizeof(newPlayerMsg));
 
-        if (player != this->players.end())
-        {
-            std::cout << "New data from " << event_fd << std::endl;
-            std::cout << message.payload << std::endl;
-        }
-        else if (player == this->players.end())
-        {
             auto *new_player = new Player(event_fd);
+            new_player->setName(msg.name);
             this->players.push_back(new_player);
 
-            std::cout << "New player added: " << event_fd << std::endl;
+            std::cout << "New player added: " << new_player->getName() << std::endl;
             this->send_message(event_fd, (void*)"Hello\n\0", 7);
+        }
+        else
+        {
+            auto player =
+                    std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player *player)
+                    {
+                        return player->getSocketFd() == event_fd;
+                    });
+
+            if (player != this->players.end())
+            {
+                std::cout << "New data from " << event_fd << std::endl;
+                std::cout << basicMessage.payload << std::endl;
+            }
         }
     }
 

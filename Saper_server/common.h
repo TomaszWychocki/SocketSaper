@@ -1,15 +1,14 @@
-#ifndef SAPER_SERVER_MESSAGES_H
-#define SAPER_SERVER_MESSAGES_H
+#ifndef SAPER_SERVER_COMMON_H
+#define SAPER_SERVER_COMMON_H
 
-enum msgType
+enum MsgType
 {
     NEW_PLAYER
 };
 
 typedef struct basicMsg
 {
-    msgType type;
-    int sender;
+    MsgType type;
     char payload[1000];
 } basicMsg;
 
@@ -23,4 +22,4 @@ typedef struct boardMsg
     char board[250];
 } boardMsg;
 
-#endif //SAPER_SERVER_MESSAGES_H
+#endif //SAPER_SERVER_COMMON_H

@@ -1,21 +1,22 @@
-//
-// Created by tomasz on 21.06.19.
-//
-
 #ifndef SAPER_SERVER_PLAYER_H
 #define SAPER_SERVER_PLAYER_H
 
+
+#include <string>
 
 class Player
 {
 public:
     Player(int socketFd);
 
-    int get_socket_fd() const;
-    void set_socket_fd(int socketFd);
+    int getSocketFd() const;
+    void setSocketFd(int socketFd);
+    const std::string &getName() const;
+    void setName(const std::string &name);
 
 private:
     int socket_fd;
+    std::string name;
 };
 
 

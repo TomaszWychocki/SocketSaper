@@ -4,12 +4,12 @@
 
 #include "Player.h"
 
-int Player::get_socket_fd() const
+int Player::getSocketFd() const
 {
     return socket_fd;
 }
 
-void Player::set_socket_fd(int socketFd)
+void Player::setSocketFd(int socketFd)
 {
     socket_fd = socketFd;
 }
@@ -18,4 +18,14 @@ Player::Player(int socketFd)
     : socket_fd(socketFd)
 {
 
+}
+
+const std::string &Player::getName() const
+{
+    return this->name;
+}
+
+void Player::setName(const std::string &name)
+{
+    this->name = name;
 }
