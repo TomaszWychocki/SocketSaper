@@ -1,11 +1,19 @@
 #ifndef SAPER_SERVER_COMMON_H
 #define SAPER_SERVER_COMMON_H
 
+
+typedef struct pos
+{
+    int x;
+    int y;
+} pos;
+
 enum MsgType
 {
     NEW_PLAYER,
     BOARD,
-    CURRENT_ROUND_INFO
+    CURRENT_ROUND_INFO,
+    NEXT_MOVE
 };
 
 typedef struct basicMsg
@@ -29,5 +37,10 @@ typedef struct currentRoundInfoMsg
     char playerName[20];
     int isMyMove;
 } currentRoundInfoMsg;
+
+typedef struct nextMoveMsg
+{
+    char direction;
+} nextMoveMsg;
 
 #endif //SAPER_SERVER_COMMON_H

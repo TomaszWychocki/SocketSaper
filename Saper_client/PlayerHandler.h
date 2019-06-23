@@ -10,6 +10,7 @@ class PlayerHandler : public TcpSocket
 {
 public:
     PlayerHandler(int port, std::string name);
+    void sendNextMove(char direction);
     int isMyMove;
 
 private:

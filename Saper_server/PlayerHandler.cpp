@@ -26,32 +26,36 @@ ssize_t PlayerHandler::recv_message(int event_fd)
 
     if(bytesReceived > 0)
     {
+        auto player =
+            std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player *player)
+            {
+                return player->getSocketFd() == event_fd;
+            });
+
         if (basicMessage.type == MsgType::NEW_PLAYER)
         {
             newPlayerMsg msg;
             memcpy(&msg, basicMessage.payload, sizeof(newPlayerMsg));
 
-            auto *new_player = new Player(event_fd);
+            int posX = (this->players.size() & 0x01) * (BOARD_WIDTH - 1);
+            int posY = ((this->players.size() >> 1) & 0x01) * (BOARD_HEIGHT - 1);
+
+            auto *new_player = new Player(event_fd, posX, posY);
             new_player->setName(msg.name);
             this->players.push_back(new_player);
 
-            std::cout << "New player added: " << new_player->getName() << std::endl;
+            std::cout << "New player added [" << posX << "," << posY <<"]: " << new_player->getName() << std::endl;
             this->sendBoard(new_player);
             this->sendCurrentRoundInfo(this->players.size() - 1);
         }
-        else
+        else if (basicMessage.type == MsgType::NEXT_MOVE)
         {
-            auto player =
-                    std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player *player)
-                    {
-                        return player->getSocketFd() == event_fd;
-                    });
+            nextMoveMsg nextMoveMessage;
+            memcpy(&nextMoveMessage, basicMessage.payload, sizeof(nextMoveMsg));
 
-            if (player != this->players.end())
-            {
-                std::cout << "New data from " << event_fd << std::endl;
-                std::cout << basicMessage.payload << std::endl;
-            }
+            std::cout << nextMoveMessage.direction << std::endl;
+
+            this->moveRequestSent = 0;
         }
     }
 

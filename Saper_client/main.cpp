@@ -24,6 +24,15 @@ int main()
     while (doLoop)
     {
         playerHandler.handleConnections();
+
+        if (playerHandler.isMyMove)
+        {
+            char direction;
+            std::cout << "Direction [W/A/S/D]: ";
+            std::cin >> direction;
+            playerHandler.sendNextMove(direction);
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 

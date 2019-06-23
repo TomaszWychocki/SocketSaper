@@ -1,8 +1,12 @@
-//
-// Created by tomasz on 21.06.19.
-//
-
 #include "Player.h"
+
+
+Player::Player(int socketFd, int x, int y)
+    : socket_fd(socketFd)
+{
+    this->position.x = x;
+    this->position.y = y;
+}
 
 int Player::getSocketFd() const
 {
@@ -12,12 +16,6 @@ int Player::getSocketFd() const
 void Player::setSocketFd(int socketFd)
 {
     socket_fd = socketFd;
-}
-
-Player::Player(int socketFd)
-    : socket_fd(socketFd)
-{
-
 }
 
 const std::string &Player::getName() const

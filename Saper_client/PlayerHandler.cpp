@@ -62,3 +62,17 @@ ssize_t PlayerHandler::recv_message()
 
     return bytesReceived;
 }
+
+void PlayerHandler::sendNextMove(char direction)
+{
+    this->isMyMove = 0;
+
+    basicMsg msg;
+    nextMoveMsg nextMoveMessage;
+
+    msg.type = MsgType::NEXT_MOVE;
+    nextMoveMessage.direction = direction;
+    memcpy(&msg.payload, &nextMoveMessage, sizeof(nextMoveMessage));
+
+    this->send_message((void*)&msg, sizeof(basicMsg));
+}
