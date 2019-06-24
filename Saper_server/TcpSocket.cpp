@@ -164,10 +164,10 @@ void TcpSocket::send_message(int socket_fd, void *message, size_t size)
 void TcpSocket::closeConnection(int event_fd)
 {
     auto player =
-            std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player* player)
-            {
-                return player->getSocketFd() == event_fd;
-            });
+        std::find_if(this->players.begin(), this->players.end(), [this, &event_fd](Player* player)
+        {
+            return player->getSocketFd() == event_fd;
+        });
 
     if (player != this->players.end())
     {

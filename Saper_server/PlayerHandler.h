@@ -19,7 +19,7 @@ private:
     int moveRequestSent;
     int currentRound;
     void sendBoard(const Player *player);
-    void sendCurrentRoundInfo(int playerIndex);
+    void sendCurrentRoundInfo(int playerIndex, int playerJoined);
 
 protected:
     void onCloseConnection(Player *player) override;

@@ -42,7 +42,7 @@ ssize_t PlayerHandler::recv_message()
         }
         else if (basicMessage.type == MsgType::CURRENT_ROUND_INFO)
         {
-            std::cout << "MsgType::CURRENT_ROUND_INFO received" << std::endl;
+//            std::cout << "MsgType::CURRENT_ROUND_INFO received" << std::endl;
 
             currentRoundInfoMsg currentRoundInfoMessage;
             memcpy(&currentRoundInfoMessage, basicMessage.payload, sizeof(currentRoundInfoMessage));
@@ -57,13 +57,18 @@ ssize_t PlayerHandler::recv_message()
             {
                 std::cout << "Waiting for " << currentRoundInfoMessage.playerName << std::endl;
             }
+
+//            std::cout << "====================" << std::endl;
+//            std::cout << "CURRENT: " << currentRoundInfoMessage.playerName << std::endl;
+//            std::cout << "isMyMove: " << currentRoundInfoMessage.isMyMove << std::endl;
+//            std::cout << "====================" << std::endl;
         }
     }
 
     return bytesReceived;
 }
 
-void PlayerHandler::sendNextMove(char direction)
+void PlayerHandler::sendNextMove(MoveDirection direction)
 {
     this->isMyMove = 0;
 

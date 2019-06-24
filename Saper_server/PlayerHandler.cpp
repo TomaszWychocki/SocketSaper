@@ -46,14 +46,37 @@ ssize_t PlayerHandler::recv_message(int event_fd)
 
             std::cout << "New player added [" << posX << "," << posY <<"]: " << new_player->getName() << std::endl;
             this->sendBoard(new_player);
-            this->sendCurrentRoundInfo(this->players.size() - 1);
+
+            if(this->players.size() > 1)
+            {
+                this->sendCurrentRoundInfo(this->players.size() - 1, 1);
+            }
         }
         else if (basicMessage.type == MsgType::NEXT_MOVE)
         {
             nextMoveMsg nextMoveMessage;
             memcpy(&nextMoveMessage, basicMessage.payload, sizeof(nextMoveMsg));
 
-            std::cout << nextMoveMessage.direction << std::endl;
+            if (nextMoveMessage.direction == MoveDirection::UP)
+            {
+                (*player)->position.y--;
+                if ((*player)->position.y < 0) (*player)->position.y = 0;
+            }
+            else if (nextMoveMessage.direction == MoveDirection::DOWN)
+            {
+                (*player)->position.y++;
+                if ((*player)->position.y > BOARD_HEIGHT - 1) (*player)->position.y = BOARD_HEIGHT - 1;
+            }
+            else if (nextMoveMessage.direction == MoveDirection::LEFT)
+            {
+                (*player)->position.x--;
+                if ((*player)->position.x < 0) (*player)->position.x = 0;
+            }
+            else if (nextMoveMessage.direction == MoveDirection::RIGHT)
+            {
+                (*player)->position.x++;
+                if ((*player)->position.x > BOARD_WIDTH - 1) (*player)->position.x = BOARD_WIDTH - 1;
+            }
 
             this->moveRequestSent = 0;
         }
@@ -91,13 +114,13 @@ void PlayerHandler::nextRound()
 
     for (int i = 0; i < this->players.size(); i++)
     {
-        this->sendCurrentRoundInfo(i);
+        this->sendCurrentRoundInfo(i, 0);
     }
 
     this->moveRequestSent = 1;
 }
 
-void PlayerHandler::sendCurrentRoundInfo(int playerIndex)
+void PlayerHandler::sendCurrentRoundInfo(int playerIndex, int playerJoined)
 {
     int currentPlayerMove = this->currentRound % this->players.size();
     int isMyMove = currentPlayerMove == playerIndex;
@@ -109,7 +132,7 @@ void PlayerHandler::sendCurrentRoundInfo(int playerIndex)
 
     strcpy(currentRoundInfoMessage.playerName, this->players[currentPlayerMove]->getName().c_str());
 
-    if (isMyMove)
+    if (isMyMove && !playerJoined)
     {
         currentRoundInfoMessage.isMyMove = 1;
     }
@@ -121,6 +144,17 @@ void PlayerHandler::sendCurrentRoundInfo(int playerIndex)
     memcpy(basicMessage.payload, &currentRoundInfoMessage, sizeof(currentRoundInfoMessage));
 
     this->send_message(this->players[playerIndex]->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
+
+//    std::cout << "====================" << std::endl;
+//    std::cout << "TO: " << this->players[playerIndex]->getName() << std::endl;
+//    std::cout << "SOCKET: " << this->players[playerIndex]->getSocketFd() << std::endl;
+//    std::cout << "isMyMove: " << isMyMove << std::endl;
+//    std::cout << "currentPlayerMove: " << currentPlayerMove << std::endl;
+//    std::cout << "this->currentRound: " << this->currentRound << std::endl;
+//    std::cout << "this->players.size(): " << this->players.size()<< std::endl;
+//    std::cout << "playerIndex: " << playerIndex<< std::endl;
+//    std::cout << "====================" << std::endl;
+
 }
 
 void PlayerHandler::onCloseConnection(Player *player)
@@ -134,6 +168,7 @@ void PlayerHandler::onCloseConnection(Player *player)
 
         if (currentPlayerMove == playerIndex)
         {
+            this->currentRound--;
             this->moveRequestSent = 0;
         }
     }

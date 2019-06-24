@@ -4,13 +4,14 @@
 #include <string>
 #include "TcpSocket.h"
 #include "GameBoard.h"
+#include "../Saper_server/common.h"
 
 
 class PlayerHandler : public TcpSocket
 {
 public:
     PlayerHandler(int port, std::string name);
-    void sendNextMove(char direction);
+    void sendNextMove(MoveDirection direction);
     int isMyMove;
 
 private:

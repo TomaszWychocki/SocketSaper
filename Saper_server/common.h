@@ -8,6 +8,15 @@ typedef struct pos
     int y;
 } pos;
 
+enum MoveDirection
+{
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    WRONG_DIRECTION
+};
+
 enum MsgType
 {
     NEW_PLAYER,
@@ -40,7 +49,7 @@ typedef struct currentRoundInfoMsg
 
 typedef struct nextMoveMsg
 {
-    char direction;
+    MoveDirection direction;
 } nextMoveMsg;
 
 #endif //SAPER_SERVER_COMMON_H
