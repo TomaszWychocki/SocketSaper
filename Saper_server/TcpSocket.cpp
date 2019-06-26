@@ -131,7 +131,7 @@ void TcpSocket::read_incoming_data(int event_fd)
 {
     ssize_t bytesReceived = this->recv_message(event_fd);
 
-    std::cout << "Received " << bytesReceived << " bytes from " << event_fd << std::endl;
+    //std::cout << "Received " << bytesReceived << " bytes from " << event_fd << std::endl;
 
     if(bytesReceived == -1 && errno != EAGAIN)
     {

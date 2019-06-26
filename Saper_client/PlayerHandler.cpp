@@ -34,20 +34,21 @@ ssize_t PlayerHandler::recv_message()
         {
             std::cout << "MsgType::BOARD received" << std::endl;
 
-            boardMsg boardMessage;
-            memcpy(&boardMessage, basicMessage.payload, sizeof(boardMessage));
-            memcpy(this->board.getBoardPointer(), boardMessage.board, sizeof(char) * BOARD_WIDTH * BOARD_HEIGHT);
+            boardMsg* boardMessage_p = nullptr;
+            this->getMessagePayload<boardMsg*>(basicMessage, boardMessage_p);
+            memcpy(this->board.getBoardPointer(), boardMessage_p->board,
+                   sizeof(gameBoardElement) * BOARD_ELEMENTS_COUNT);
 
             this->board.showBoard();
         }
         else if (basicMessage.type == MsgType::CURRENT_ROUND_INFO)
         {
-//            std::cout << "MsgType::CURRENT_ROUND_INFO received" << std::endl;
+            //std::cout << "MsgType::CURRENT_ROUND_INFO received" << std::endl;
 
-            currentRoundInfoMsg currentRoundInfoMessage;
-            memcpy(&currentRoundInfoMessage, basicMessage.payload, sizeof(currentRoundInfoMessage));
+            currentRoundInfoMsg* currentRoundInfoMessage_p = nullptr;
+            this->getMessagePayload<currentRoundInfoMsg*>(basicMessage, currentRoundInfoMessage_p);
 
-            this->isMyMove = currentRoundInfoMessage.isMyMove;
+            this->isMyMove = currentRoundInfoMessage_p->isMyMove;
 
             if (this->isMyMove)
             {
@@ -55,7 +56,7 @@ ssize_t PlayerHandler::recv_message()
             }
             else
             {
-                std::cout << "Waiting for " << currentRoundInfoMessage.playerName << std::endl;
+                std::cout << "Waiting for " << currentRoundInfoMessage_p->playerName << std::endl;
             }
 
 //            std::cout << "====================" << std::endl;
@@ -80,4 +81,10 @@ void PlayerHandler::sendNextMove(MoveDirection direction)
     memcpy(&msg.payload, &nextMoveMessage, sizeof(nextMoveMessage));
 
     this->send_message((void*)&msg, sizeof(basicMsg));
+}
+
+template<class T>
+void PlayerHandler::getMessagePayload(basicMsg &input, T& output)
+{
+    output = reinterpret_cast<T>(input.payload);
 }

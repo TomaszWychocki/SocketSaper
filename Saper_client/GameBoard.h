@@ -1,25 +1,18 @@
 #ifndef SAPER_CLIENT_GAMEBOARD_H
 #define SAPER_CLIENT_GAMEBOARD_H
-#define BOARD_HEIGHT 11
-#define BOARD_WIDTH 21
 
+#include "../Saper_server/common.h"
 
-enum BoardElement
-{
-    BLOWN_UP = -2,
-    MINE = -1,
-    NO_MINE = 0
-};
 
 class GameBoard
 {
 public:
     GameBoard();
     void showBoard();
-    char *getBoardPointer();
+    gameBoardElement *getBoardPointer();
 
 private:
-    char board[BOARD_HEIGHT][BOARD_WIDTH];
+    gameBoardElement board[BOARD_HEIGHT][BOARD_WIDTH];
 };
 
 

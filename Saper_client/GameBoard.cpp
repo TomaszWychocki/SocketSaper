@@ -1,5 +1,6 @@
 #include "GameBoard.h"
 #include <iostream>
+#include "../Saper_server/common.h"
 
 
 GameBoard::GameBoard()
@@ -13,25 +14,24 @@ void GameBoard::showBoard()
     {
         for (int j = 0; j < BOARD_WIDTH; ++j)
         {
-            std::cout << (int)this->board[i][j] << "\t";
-//            switch (this->board[i][j])
-//            {
-//                case BoardElement::MINE:
-//                    std::cout << "I";
-//                    break;
-//                case BoardElement::NO_MINE:
-//                    std::cout << "O";
-//                    break;
-//                default:
-//                    std::cout << " ";
-//                    break;
-//            }
+            if (this->board[i][j].player != NO_PLAYER)
+            {
+                std::cout << "P" << this->board[i][j].player << "\t";
+            }
+            else if (this->board[i][j].isVisible)
+            {
+                std::cout << this->board[i][j].minesAround << "\t";
+            }
+            else
+            {
+                std::cout << "+\t";
+            }
         }
         std::cout << std::endl;
     }
 }
 
-char *GameBoard::getBoardPointer()
+gameBoardElement *GameBoard::getBoardPointer()
 {
     return &this->board[0][0];
 }

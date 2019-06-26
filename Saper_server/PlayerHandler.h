@@ -4,6 +4,7 @@
 #include "TcpSocket.h"
 #include "Player.h"
 #include "GameBoard.h"
+#include "common.h"
 #include <vector>
 
 
@@ -16,17 +17,16 @@ public:
 private:
     ssize_t recv_message(int event_fd) override;
     int checkWin(const Player *player);
-    int moveRequestSent;
-    int currentRound;
     void sendBoard(const Player *player);
     void sendCurrentRoundInfo(int playerIndex, int playerJoined);
+    template <class T> void getMessagePayload(basicMsg& input, T& output);
+
+    int moveRequestSent;
+    int currentRound;
+    GameBoard board;
 
 protected:
     void onCloseConnection(Player *player) override;
-
-private:
-
-    GameBoard board;
 };
 
 

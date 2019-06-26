@@ -15,6 +15,7 @@ PlayerHandler::PlayerHandler(int port, std::vector<Player*> &players)
     , moveRequestSent(0)
 {
     this->board.calculateFields();
+    this->board.showBoard();
 }
 
 ssize_t PlayerHandler::recv_message(int event_fd)
@@ -34,18 +35,25 @@ ssize_t PlayerHandler::recv_message(int event_fd)
 
         if (basicMessage.type == MsgType::NEW_PLAYER)
         {
-            newPlayerMsg msg;
-            memcpy(&msg, basicMessage.payload, sizeof(newPlayerMsg));
+            newPlayerMsg* msg_p = nullptr;
+            this->getMessagePayload<newPlayerMsg*>(basicMessage, msg_p);
 
             int posX = (this->players.size() & 0x01) * (BOARD_WIDTH - 1);
             int posY = ((this->players.size() >> 1) & 0x01) * (BOARD_HEIGHT - 1);
 
             auto *new_player = new Player(event_fd, posX, posY);
-            new_player->setName(msg.name);
+            new_player->setName(msg_p->name);
             this->players.push_back(new_player);
 
-            std::cout << "New player added [" << posX << "," << posY <<"]: " << new_player->getName() << std::endl;
-            this->sendBoard(new_player);
+            this->board.setPlayerPosition(new_player->position, new_player->playerNumber);
+
+            std::cout << "New player added [" << posX << "," << posY << "]: " << new_player->getName() << std::endl;
+
+            if (this->moveRequestSent)
+            {
+                // New player joined after round start
+                this->sendBoard(new_player);
+            }
 
             if(this->players.size() > 1)
             {
@@ -54,28 +62,40 @@ ssize_t PlayerHandler::recv_message(int event_fd)
         }
         else if (basicMessage.type == MsgType::NEXT_MOVE)
         {
-            nextMoveMsg nextMoveMessage;
-            memcpy(&nextMoveMessage, basicMessage.payload, sizeof(nextMoveMsg));
+            nextMoveMsg* nextMoveMessage_p = nullptr;
+            this->getMessagePayload<nextMoveMsg*>(basicMessage, nextMoveMessage_p);
 
-            if (nextMoveMessage.direction == MoveDirection::UP)
+            std::cout << (*player)->getName() << " [" << (*player)->position.x << "," << (*player)->position.y <<"]->";
+            this->board.removePlayerFromBoardElement((*player)->position);
+
+            if (nextMoveMessage_p->direction == MoveDirection::UP)
             {
                 (*player)->position.y--;
                 if ((*player)->position.y < 0) (*player)->position.y = 0;
             }
-            else if (nextMoveMessage.direction == MoveDirection::DOWN)
+            else if (nextMoveMessage_p->direction == MoveDirection::DOWN)
             {
                 (*player)->position.y++;
                 if ((*player)->position.y > BOARD_HEIGHT - 1) (*player)->position.y = BOARD_HEIGHT - 1;
             }
-            else if (nextMoveMessage.direction == MoveDirection::LEFT)
+            else if (nextMoveMessage_p->direction == MoveDirection::LEFT)
             {
                 (*player)->position.x--;
                 if ((*player)->position.x < 0) (*player)->position.x = 0;
             }
-            else if (nextMoveMessage.direction == MoveDirection::RIGHT)
+            else if (nextMoveMessage_p->direction == MoveDirection::RIGHT)
             {
                 (*player)->position.x++;
                 if ((*player)->position.x > BOARD_WIDTH - 1) (*player)->position.x = BOARD_WIDTH - 1;
+            }
+
+            std::cout << "[" << (*player)->position.x << "," << (*player)->position.y <<"]" << std::endl;
+
+            int result = this->board.setPlayerPosition((*player)->position, (*player)->playerNumber);
+
+            if (!result)
+            {
+                std::cout << (*player)->getName() << " is dead" << std::endl;
             }
 
             this->moveRequestSent = 0;
@@ -111,9 +131,11 @@ void PlayerHandler::nextRound()
     }
 
     this->currentRound++;
+    this->board.calculateFields();
 
     for (int i = 0; i < this->players.size(); i++)
     {
+        this->sendBoard(this->players[i]);
         this->sendCurrentRoundInfo(i, 0);
     }
 
@@ -142,7 +164,6 @@ void PlayerHandler::sendCurrentRoundInfo(int playerIndex, int playerJoined)
     }
 
     memcpy(basicMessage.payload, &currentRoundInfoMessage, sizeof(currentRoundInfoMessage));
-
     this->send_message(this->players[playerIndex]->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
 
 //    std::cout << "====================" << std::endl;
@@ -172,4 +193,10 @@ void PlayerHandler::onCloseConnection(Player *player)
             this->moveRequestSent = 0;
         }
     }
+}
+
+template<class T>
+void PlayerHandler::getMessagePayload(basicMsg& input, T& output)
+{
+    output = reinterpret_cast<T>(input.payload);
 }

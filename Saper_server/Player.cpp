@@ -1,11 +1,14 @@
 #include "Player.h"
 
 
+int Player::totalPlayers = 0;
+
 Player::Player(int socketFd, int x, int y)
     : socket_fd(socketFd)
 {
     this->position.x = x;
     this->position.y = y;
+    this->playerNumber = Player::totalPlayers++;
 }
 
 int Player::getSocketFd() const

@@ -16,10 +16,12 @@ public:
     void setName(const std::string &name);
 
     pos position;
+    int playerNumber;
 
 private:
     int socket_fd;
     std::string name;
+    static int totalPlayers;
 };
 
 

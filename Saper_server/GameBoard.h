@@ -1,27 +1,20 @@
 #ifndef SAPER_SERVER_GAMEBOARD_H
 #define SAPER_SERVER_GAMEBOARD_H
-#define BOARD_HEIGHT 11
-#define BOARD_WIDTH 21
 
-
-enum BoardElement
-{
-    FINISH = -3,
-    BLOWN_UP = -2,
-    MINE = -1,
-    NO_MINE = 0
-};
+#include "common.h"
 
 class GameBoard
 {
 public:
     GameBoard();
-    void showBoard();
     void calculateFields();
-    char *getBoardPointer();
+    gameBoardElement *getBoardPointer();
+    void removePlayerFromBoardElement(pos& position);
+    int setPlayerPosition(pos& position, int playerNumber);
+    void showBoard();
 
 private:
-    char board[BOARD_HEIGHT][BOARD_WIDTH];
+    gameBoardElement board[BOARD_HEIGHT][BOARD_WIDTH];
     void generateBoard();
     void setBoardNumbersAroundMine(int i, int j);
 };

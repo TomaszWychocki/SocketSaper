@@ -1,6 +1,11 @@
 #ifndef SAPER_SERVER_COMMON_H
 #define SAPER_SERVER_COMMON_H
 
+#define BOARD_HEIGHT 11
+#define BOARD_WIDTH 21
+#define BOARD_ELEMENTS_COUNT (BOARD_HEIGHT * BOARD_WIDTH)
+#define NO_PLAYER -1
+
 
 typedef struct pos
 {
@@ -25,10 +30,25 @@ enum MsgType
     NEXT_MOVE
 };
 
+enum BoardElementType
+{
+    FINISH = -2,
+    MINE = -1,
+    NO_MINE = 0
+};
+
+typedef struct gameBoardElement
+{
+    BoardElementType type : 4;
+    int isVisible : 1;
+    int player : 3;
+    int minesAround : 8;
+} gameBoardElement;
+
 typedef struct basicMsg
 {
     MsgType type;
-    char payload[500];
+    char payload[1024];
 } basicMsg;
 
 typedef struct newPlayerMsg
@@ -38,7 +58,7 @@ typedef struct newPlayerMsg
 
 typedef struct boardMsg
 {
-    char board[250];
+    gameBoardElement board[BOARD_ELEMENTS_COUNT];
 } boardMsg;
 
 typedef struct currentRoundInfoMsg
