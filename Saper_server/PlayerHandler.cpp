@@ -47,11 +47,13 @@ ssize_t PlayerHandler::recv_message(int event_fd)
 
             this->board.setPlayerPosition(new_player->position, new_player->playerNumber);
 
-            std::cout << "New player added [" << posX << "," << posY << "]: " << new_player->getName() << std::endl;
+            std::cout << "New playerNumber added [" << posX << "," << posY << "]: " << new_player->getName() << std::endl;
+
+            this->sendWelcomeMessage(new_player);
 
             if (this->moveRequestSent)
             {
-                // New player joined after round start
+                // New playerNumber joined after round start
                 this->sendBoard(new_player);
             }
 
@@ -117,7 +119,7 @@ void PlayerHandler::sendBoard(const Player *player)
 
     basicMessage.type = MsgType::BOARD;
 
-    memcpy(boardMessage.board, this->board.getBoardPointer(), sizeof(char) * BOARD_WIDTH * BOARD_HEIGHT);
+    memcpy(boardMessage.board, this->board.getBoardPointer(), sizeof(gameBoardElement) * BOARD_ELEMENTS_COUNT);
     memcpy(basicMessage.payload, &boardMessage, sizeof(boardMessage));
 
     this->send_message(player->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
@@ -192,6 +194,8 @@ void PlayerHandler::onCloseConnection(Player *player)
             this->currentRound--;
             this->moveRequestSent = 0;
         }
+
+        this->board.removePlayerFromBoardElement(player->position);
     }
 }
 
@@ -199,4 +203,16 @@ template<class T>
 void PlayerHandler::getMessagePayload(basicMsg& input, T& output)
 {
     output = reinterpret_cast<T>(input.payload);
+}
+
+void PlayerHandler::sendWelcomeMessage(const Player *player)
+{
+    basicMsg basicMessage;
+    serverWelcomeMessage welcomeMessage;
+
+    basicMessage.type = MsgType::WELCOME_MESSAGE;
+    welcomeMessage.playerNumber = player->playerNumber;
+    memcpy(basicMessage.payload, &welcomeMessage, sizeof(serverWelcomeMessage));
+
+    this->send_message(player->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
 }

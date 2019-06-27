@@ -19,7 +19,7 @@ void GameBoard::generateBoard()
     {
         for (int j = 0; j < BOARD_WIDTH; ++j)
         {
-            this->board[i][j].player = NO_PLAYER;
+            this->board[i][j].playerNumber = NO_PLAYER;
             this->board[i][j].minesAround = 0;
             this->board[i][j].isVisible = 0;
 
@@ -89,7 +89,7 @@ gameBoardElement *GameBoard::getBoardPointer()
 
 void GameBoard::removePlayerFromBoardElement(pos& position)
 {
-    this->board[position.y][position.x].player = NO_PLAYER;
+    this->board[position.y][position.x].playerNumber = NO_PLAYER;
 }
 
 int GameBoard::setPlayerPosition(pos &position, int playerNumber)
@@ -101,7 +101,7 @@ int GameBoard::setPlayerPosition(pos &position, int playerNumber)
         return 0;
     }
 
-    this->board[position.y][position.x].player = playerNumber;
+    this->board[position.y][position.x].playerNumber = playerNumber;
 
     return 1;
 }

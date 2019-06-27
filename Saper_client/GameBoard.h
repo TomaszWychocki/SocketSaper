@@ -11,6 +11,8 @@ public:
     void showBoard();
     gameBoardElement *getBoardPointer();
 
+    int currentPlayerNumber;
+
 private:
     gameBoardElement board[BOARD_HEIGHT][BOARD_WIDTH];
 };

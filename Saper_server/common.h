@@ -27,7 +27,8 @@ enum MsgType
     NEW_PLAYER,
     BOARD,
     CURRENT_ROUND_INFO,
-    NEXT_MOVE
+    NEXT_MOVE,
+    WELCOME_MESSAGE
 };
 
 enum BoardElementType
@@ -39,10 +40,10 @@ enum BoardElementType
 
 typedef struct gameBoardElement
 {
-    BoardElementType type : 4;
-    int isVisible : 1;
-    int player : 3;
-    int minesAround : 8;
+    BoardElementType type : 6;
+    unsigned int isVisible : 1;
+    int playerNumber : 6;
+    unsigned int minesAround : 8;
 } gameBoardElement;
 
 typedef struct basicMsg
@@ -71,5 +72,10 @@ typedef struct nextMoveMsg
 {
     MoveDirection direction;
 } nextMoveMsg;
+
+typedef struct serverWelcomeMessage
+{
+    int playerNumber;
+} serverWelcomeMessage;
 
 #endif //SAPER_SERVER_COMMON_H

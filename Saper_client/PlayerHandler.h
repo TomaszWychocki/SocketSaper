@@ -18,6 +18,7 @@ private:
     ssize_t recv_message() override;
     template <class T> void getMessagePayload(basicMsg& input, T& output);
     GameBoard board;
+    int myNumber;
 };
 
 

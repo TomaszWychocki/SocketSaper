@@ -8,6 +8,7 @@
 PlayerHandler::PlayerHandler(int port, std::string name)
     : TcpSocket(port)
     , isMyMove(0)
+    , myNumber(-1)
 {
     basicMsg msg;
     newPlayerMsg payload;
@@ -32,7 +33,7 @@ ssize_t PlayerHandler::recv_message()
 
         if (basicMessage.type == MsgType::BOARD)
         {
-            std::cout << "MsgType::BOARD received" << std::endl;
+            //std::cout << "MsgType::BOARD received" << std::endl;
 
             boardMsg* boardMessage_p = nullptr;
             this->getMessagePayload<boardMsg*>(basicMessage, boardMessage_p);
@@ -63,6 +64,13 @@ ssize_t PlayerHandler::recv_message()
 //            std::cout << "CURRENT: " << currentRoundInfoMessage.playerName << std::endl;
 //            std::cout << "isMyMove: " << currentRoundInfoMessage.isMyMove << std::endl;
 //            std::cout << "====================" << std::endl;
+        }
+        else if (basicMessage.type == MsgType::WELCOME_MESSAGE)
+        {
+            serverWelcomeMessage* welcomeMessage = nullptr;
+            this->getMessagePayload<serverWelcomeMessage*>(basicMessage, welcomeMessage);
+            this->myNumber = welcomeMessage->playerNumber;
+            this->board.currentPlayerNumber = this->myNumber;
         }
     }
 

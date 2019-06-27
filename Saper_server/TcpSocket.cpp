@@ -179,7 +179,7 @@ void TcpSocket::closeConnection(int event_fd)
     }
     else
     {
-        std::cout << "Unknown player disconnected: " << event_fd << std::endl;
+        std::cout << "Unknown playerNumber disconnected: " << event_fd << std::endl;
     }
 }
 

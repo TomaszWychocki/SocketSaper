@@ -3,4 +3,4 @@ project(Saper_client)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Saper_client main.cpp TcpSocket.cpp TcpSocket.h PlayerHandler.cpp PlayerHandler.h GameBoard.cpp GameBoard.h)
+add_executable(Saper_client main.cpp TcpSocket.cpp TcpSocket.h PlayerHandler.cpp PlayerHandler.h GameBoard.cpp GameBoard.h colors.h)

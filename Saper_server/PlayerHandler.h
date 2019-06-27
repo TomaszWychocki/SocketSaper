@@ -20,6 +20,7 @@ private:
     void sendBoard(const Player *player);
     void sendCurrentRoundInfo(int playerIndex, int playerJoined);
     template <class T> void getMessagePayload(basicMsg& input, T& output);
+    void sendWelcomeMessage(const Player *player);
 
     int moveRequestSent;
     int currentRound;

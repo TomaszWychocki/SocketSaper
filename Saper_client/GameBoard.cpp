@@ -1,9 +1,11 @@
 #include "GameBoard.h"
 #include <iostream>
 #include "../Saper_server/common.h"
+#include "colors.h"
 
 
 GameBoard::GameBoard()
+    : currentPlayerNumber(-1)
 {
 
 }
@@ -14,17 +16,25 @@ void GameBoard::showBoard()
     {
         for (int j = 0; j < BOARD_WIDTH; ++j)
         {
-            if (this->board[i][j].player != NO_PLAYER)
+            if (this->board[i][j].playerNumber != NO_PLAYER)
             {
-                std::cout << "P" << this->board[i][j].player << "\t";
+                int minesAround = this->board[i][j].minesAround;
+                if (this->board[i][j].playerNumber != this->currentPlayerNumber)
+                {
+                    std::cout << BREDFBLK << minesAround << RST;
+                }
+                else
+                {
+                    std::cout << BGRNFBLK << minesAround << RST;
+                }
             }
             else if (this->board[i][j].isVisible)
             {
-                std::cout << this->board[i][j].minesAround << "\t";
+                std::cout << this->board[i][j].minesAround;
             }
             else
             {
-                std::cout << "+\t";
+                std::cout << "-";
             }
         }
         std::cout << std::endl;
