@@ -29,12 +29,8 @@ ssize_t PlayerHandler::recv_message()
 
     if (bytesReceived > 0)
     {
-        //std::cout << "Received " << bytesReceived << " bytes" << std::endl;
-
         if (basicMessage.type == MsgType::BOARD)
         {
-            //std::cout << "MsgType::BOARD received" << std::endl;
-
             boardMsg* boardMessage_p = nullptr;
             this->getMessagePayload<boardMsg*>(basicMessage, boardMessage_p);
             memcpy(this->board.getBoardPointer(), boardMessage_p->board,
@@ -44,8 +40,6 @@ ssize_t PlayerHandler::recv_message()
         }
         else if (basicMessage.type == MsgType::CURRENT_ROUND_INFO)
         {
-            //std::cout << "MsgType::CURRENT_ROUND_INFO received" << std::endl;
-
             currentRoundInfoMsg* currentRoundInfoMessage_p = nullptr;
             this->getMessagePayload<currentRoundInfoMsg*>(basicMessage, currentRoundInfoMessage_p);
 
@@ -59,11 +53,6 @@ ssize_t PlayerHandler::recv_message()
             {
                 std::cout << "Waiting for " << currentRoundInfoMessage_p->playerName << std::endl;
             }
-
-//            std::cout << "====================" << std::endl;
-//            std::cout << "CURRENT: " << currentRoundInfoMessage.playerName << std::endl;
-//            std::cout << "isMyMove: " << currentRoundInfoMessage.isMyMove << std::endl;
-//            std::cout << "====================" << std::endl;
         }
         else if (basicMessage.type == MsgType::WELCOME_MESSAGE)
         {
@@ -71,6 +60,37 @@ ssize_t PlayerHandler::recv_message()
             this->getMessagePayload<serverWelcomeMessage*>(basicMessage, welcomeMessage);
             this->myNumber = welcomeMessage->playerNumber;
             this->board.currentPlayerNumber = this->myNumber;
+        }
+        else if (basicMessage.type == PLAYER_DEAD)
+        {
+            playerDeadMsg* deadMessage_p = nullptr;
+            this->getMessagePayload<playerDeadMsg*>(basicMessage, deadMessage_p);
+
+            if (deadMessage_p->playerNumber == this->myNumber)
+            {
+                std::cout << "You lose" << std::endl;
+                exit(0);
+            }
+            else
+            {
+                std::cout << deadMessage_p->playerName << " lost the game" << std::endl;
+            }
+        }
+        else if (basicMessage.type == PLAYER_WIN)
+        {
+            playerWinMsg* winMessage_p = nullptr;
+            this->getMessagePayload<playerWinMsg*>(basicMessage, winMessage_p);
+
+            if (winMessage_p->playerNumber == this->myNumber)
+            {
+                std::cout << "You win!" << std::endl;
+            }
+            else
+            {
+                std::cout << winMessage_p->playerName << " win!" << std::endl;
+            }
+
+            exit(0);
         }
     }
 

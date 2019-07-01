@@ -98,6 +98,13 @@ ssize_t PlayerHandler::recv_message(int event_fd)
             if (!result)
             {
                 std::cout << (*player)->getName() << " is dead" << std::endl;
+                this->sendPlayerDead(*player);
+            }
+
+            if ((*player)->position.x == (BOARD_WIDTH + 1) / 2 && (*player)->position.y == (BOARD_HEIGHT + 1) / 2)
+            {
+                this->sendPlayerWin(*player);
+                exit(0);
             }
 
             this->moveRequestSent = 0;
@@ -167,17 +174,6 @@ void PlayerHandler::sendCurrentRoundInfo(int playerIndex, int playerJoined)
 
     memcpy(basicMessage.payload, &currentRoundInfoMessage, sizeof(currentRoundInfoMessage));
     this->send_message(this->players[playerIndex]->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
-
-//    std::cout << "====================" << std::endl;
-//    std::cout << "TO: " << this->players[playerIndex]->getName() << std::endl;
-//    std::cout << "SOCKET: " << this->players[playerIndex]->getSocketFd() << std::endl;
-//    std::cout << "isMyMove: " << isMyMove << std::endl;
-//    std::cout << "currentPlayerMove: " << currentPlayerMove << std::endl;
-//    std::cout << "this->currentRound: " << this->currentRound << std::endl;
-//    std::cout << "this->players.size(): " << this->players.size()<< std::endl;
-//    std::cout << "playerIndex: " << playerIndex<< std::endl;
-//    std::cout << "====================" << std::endl;
-
 }
 
 void PlayerHandler::onCloseConnection(Player *player)
@@ -215,4 +211,36 @@ void PlayerHandler::sendWelcomeMessage(const Player *player)
     memcpy(basicMessage.payload, &welcomeMessage, sizeof(serverWelcomeMessage));
 
     this->send_message(player->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
+}
+
+void PlayerHandler::sendPlayerDead(const Player *player)
+{
+    basicMsg basicMessage;
+    playerDeadMsg deadMessage;
+
+    basicMessage.type = MsgType::PLAYER_DEAD;
+    deadMessage.playerNumber = player->playerNumber;
+    strcpy(deadMessage.playerName, player->getName().c_str());
+    memcpy(basicMessage.payload, &deadMessage, sizeof(playerDeadMsg));
+
+    for (const Player *pl : this->players)
+    {
+        this->send_message(pl->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
+    }
+}
+
+void PlayerHandler::sendPlayerWin(const Player *player)
+{
+    basicMsg basicMessage;
+    playerWinMsg winMessage;
+
+    basicMessage.type = MsgType::PLAYER_WIN;
+    winMessage.playerNumber = player->playerNumber;
+    strcpy(winMessage.playerName, player->getName().c_str());
+    memcpy(basicMessage.payload, &winMessage, sizeof(playerWinMsg));
+
+    for (const Player *pl : this->players)
+    {
+        this->send_message(pl->getSocketFd(), (void*)&basicMessage, sizeof(basicMessage));
+    }
 }

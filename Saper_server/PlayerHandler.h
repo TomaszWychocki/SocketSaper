@@ -21,6 +21,8 @@ private:
     void sendCurrentRoundInfo(int playerIndex, int playerJoined);
     template <class T> void getMessagePayload(basicMsg& input, T& output);
     void sendWelcomeMessage(const Player *player);
+    void sendPlayerDead(const Player *player);
+    void sendPlayerWin(const Player *player);
 
     int moveRequestSent;
     int currentRound;

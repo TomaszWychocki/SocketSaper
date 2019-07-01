@@ -28,7 +28,9 @@ enum MsgType
     BOARD,
     CURRENT_ROUND_INFO,
     NEXT_MOVE,
-    WELCOME_MESSAGE
+    WELCOME_MESSAGE,
+    PLAYER_DEAD,
+    PLAYER_WIN
 };
 
 enum BoardElementType
@@ -77,5 +79,18 @@ typedef struct serverWelcomeMessage
 {
     int playerNumber;
 } serverWelcomeMessage;
+
+typedef struct playerDeadMsg
+{
+    char playerName[20];
+    int playerNumber;
+} playerDeadMsg;
+
+typedef struct playerWinMsg
+{
+    char playerName[20];
+    int playerNumber;
+} playerWinMsg;
+
 
 #endif //SAPER_SERVER_COMMON_H
